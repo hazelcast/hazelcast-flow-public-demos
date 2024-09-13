@@ -1,0 +1,90 @@
+services:
+   orbital:
+      image: "orbitalhq/orbital:0.33-next-jammy"
+      environment:
+         SERVER_PORT: 9021
+         JAVA_OPTS: >-
+            -Xms256m
+            -Xmx2048m
+         OPTIONS: >-
+            --vyne.analytics.persistRemoteCallResponses=true
+            --vyne.analytics.persistResults=true
+            --vyne.workspace.config-file=/opt/service/workspace/workspace.conf
+            --vyne.db.username=orbital
+            --vyne.db.password=changeme
+            --vyne.db.host=pg-pagila
+      expose:
+         - 9021
+      ports:
+         - "9021:9021"
+      healthcheck:
+         test: curl --fail http://localhost:9021/api/actuator/health || exit 1
+         interval: 30s
+         timeout: 5s
+         retries: 3
+      volumes:
+         - .:/opt/service/workspace
+      depends_on:
+         - pg-pagila
+      deploy:
+         restart_policy:
+            condition: on-failure
+         resources:
+            limits:
+               memory: 2gb
+
+   pg-pagila:
+      build:
+         context: "docker/pagila-database"
+         dockerfile: "Dockerfile"
+      expose:
+         - 5432
+      ports:
+         - "35432:5432"
+      environment:
+         POSTGRES_DB: pagila
+         POSTGRES_USER: root
+         POSTGRES_PASSWORD: admin
+
+   films-api:
+      build:
+         context: "online-listings-api"
+         dockerfile: "Dockerfile"
+      expose:
+         - 80
+      ports:
+         - "9981:80"
+      environment:
+         OPTIONS: >-
+            --spring.kafka.bootstrap-servers=kafka:19092
+      deploy:
+         restart_policy:
+            condition: on-failure
+         resources:
+            limits:
+               memory: 300mb
+
+   kafka:
+      image: "docker.io/apache/kafka:3.7.0"
+      hostname: kafka
+      container_name: kafka
+      environment:
+         KAFKA_NODE_ID: 1
+         KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+         KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT_HOST://localhost:9092,PLAINTEXT://kafka:19092'
+         KAFKA_PROCESS_ROLES: 'broker,controller'
+         KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+         KAFKA_LISTENERS: 'CONTROLLER://:29093,PLAINTEXT_HOST://0.0.0.0:9092,PLAINTEXT://0.0.0.0:19092'
+         KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+         KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+         CLUSTER_ID: '4L6g3nShT-eMCtK--X86sw'
+         KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+         KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+         KAFKA_LOG_RETENTION_MS: 60000
+         KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 5000
+      ports:
+         - "19092:19092"
+
+volumes:
+   postgres_data:

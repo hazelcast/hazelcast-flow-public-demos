@@ -1,3 +1,11 @@
+FROM maven:3.9.9-amazoncorretto-21 as builder
+
+RUN mkdir -p /usr/src/online-listings-api
+COPY online-listings-api /usr/src/online-listings-api/
+COPY pom.xml /usr/src
+
+RUN mvn -f /usr/src/pom.xml clean package
+
 FROM eclipse-temurin:17-jammy
 
 RUN addgroup --system worker --gid 1000 && \
@@ -16,6 +24,6 @@ HEALTHCHECK --interval=10s \
             --start-period=30s \
             CMD curl -s http://localhost/actuator/ping > /dev/null || exit 1
 
-COPY --chown=worker target/appassembler /opt/service/
+COPY --from=builder --chown=worker /usr/src/online-listings-api/target/appassembler /opt/service/
 
 CMD $BEFORE_START_COMMAND && ./bin/online-listings-api --server.port=80 $OPTIONS

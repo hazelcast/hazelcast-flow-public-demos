@@ -1,0 +1,2 @@
+CREATE USER flow WITH PASSWORD 'changeme';
+CREATE DATABASE flow OWNER flow;

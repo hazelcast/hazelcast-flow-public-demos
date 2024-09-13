@@ -1,7 +1,7 @@
 FROM postgres
 
 ENV POSTGRES_DB pagila
-ENV POSTGRES_USER root
+ENV POSTGRES_USER postgres
 ENV POSTGRES_PASSWORD admin
 
 COPY *.sh /docker-entrypoint-initdb.d/

@@ -3,17 +3,112 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
+
+   <groupId>com.hazelcast.flow</groupId>
+   <artifactId>flow-demos</artifactId>
+   <version>1.0-SNAPSHOT</version>
    <parent>
-      <groupId>com.orbitalhq.demos</groupId>
-      <artifactId>orbital-demos</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-parent</artifactId>
+      <version>2.7.9</version>
+      <relativePath/>
    </parent>
 
-   <artifactId>importing-through-ui</artifactId>
-   <packaging>pom</packaging>
 
+   <packaging>pom</packaging>
    <modules>
       <module>online-listings-api</module>
    </modules>
+
+   <properties>
+      <kotlin.version>1.7.20</kotlin.version>
+      <taxi.version>1.45.0-SNAPSHOT</taxi.version>
+      <maven.compiler.source>17</maven.compiler.source>
+      <maven.compiler.target>17</maven.compiler.target>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+   </properties>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.jetbrains.kotlin</groupId>
+         <artifactId>kotlin-stdlib-jdk8</artifactId>
+         <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jetbrains.kotlin</groupId>
+         <artifactId>kotlin-stdlib-jdk7</artifactId>
+         <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jetbrains.kotlin</groupId>
+         <artifactId>kotlin-stdlib</artifactId>
+         <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jetbrains.kotlin</groupId>
+         <artifactId>kotlin-stdlib-common</artifactId>
+         <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jetbrains.kotlin</groupId>
+         <artifactId>kotlin-reflect</artifactId>
+         <version>${kotlin.version}</version>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <finalName>${project.artifactId}</finalName>
+      <plugins>
+         <plugin>
+            <artifactId>kotlin-maven-plugin</artifactId>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <version>${kotlin.version}</version>
+            <executions>
+               <execution>
+                  <id>compile</id>
+                  <goals>
+                     <goal>compile</goal>
+                  </goals>
+                  <configuration>
+                     <sourceDirs>
+                        <sourceDir>src/main/java</sourceDir>
+                     </sourceDirs>
+                  </configuration>
+               </execution>
+
+               <execution>
+                  <id>test-compile</id>
+                  <goals>
+                     <goal>test-compile</goal>
+                  </goals>
+                  <configuration>
+                     <sourceDirs>
+                        <sourceDir>src/test/kotlin</sourceDir>
+                        <sourceDir>src/test/java</sourceDir>
+                     </sourceDirs>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+      <pluginManagement>
+         <plugins>
+            <plugin>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-maven-plugin</artifactId>
+               <configuration>
+                  <executable>true</executable>
+               </configuration>
+               <executions>
+                  <execution>
+                     <goals>
+                        <goal>repackage</goal>
+                     </goals>
+                  </execution>
+               </executions>
+            </plugin>
+         </plugins>
+      </pluginManagement>
+   </build>
 
 </project>

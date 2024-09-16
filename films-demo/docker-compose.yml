@@ -1,5 +1,5 @@
 services:
-   orbital:
+   hazelcast-flow:
       image: "orbitalhq/orbital:0.33-next-jammy"
       environment:
          SERVER_PORT: 9021
@@ -10,7 +10,8 @@ services:
             --vyne.analytics.persistRemoteCallResponses=true
             --vyne.analytics.persistResults=true
             --vyne.workspace.config-file=/opt/service/workspace/workspace.conf
-            --vyne.db.username=orbital
+            --vyne.db.database=flow
+            --vyne.db.username=flow
             --vyne.db.password=changeme
             --vyne.db.host=pg-pagila
       expose:
@@ -43,12 +44,12 @@ services:
          - "35432:5432"
       environment:
          POSTGRES_DB: pagila
-         POSTGRES_USER: root
+         POSTGRES_USER: postgres
          POSTGRES_PASSWORD: admin
 
    films-api:
       build:
-         context: "online-listings-api"
+         context: "."
          dockerfile: "Dockerfile"
       expose:
          - 80

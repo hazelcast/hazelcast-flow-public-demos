@@ -26,36 +26,3 @@ open class FilmStreamingServicesApp {
       logger.info("Films API built on commit $commit")
    }
 }
-
-//
-//@Configuration
-//open class OrbitalConfig {
-//
-//   @Value("\${spring.application.name}")
-//   private val appName: String? = null
-//
-//   //    init {
-////        TypeAliasRegister.registerPackage("films")
-////    }
-//   @Bean
-//   open fun schemaPublisher(): SchemaPublisherService =
-//      SchemaPublisherService(
-//         appName!!,
-//         RSocketSchemaPublisherTransport(
-//            TcpAddress("localhost", 7655)
-//         )
-//      )
-//}
-//
-//@Component
-//class SchemaPublisherTask(@Value("\${server.port}") private val serverPort: String, publisher: SchemaPublisherService) {
-//   init {
-//      publisher.publish(
-//         PackageMetadata.from("com.orbitalhq.demos.films", "streaming-services-api"),
-//         TaxiGenerator()
-//            .forPackage(StreamingMoviesProvider::class.java)
-//            .addExtension(SpringMvcExtension.forBaseUrl("http://localhost:${serverPort}"))
-//            .generate()
-//      ).subscribe()
-//   }
-//}

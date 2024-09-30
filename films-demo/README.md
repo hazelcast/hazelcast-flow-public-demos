@@ -1,4 +1,4 @@
-# Hazelcast Flow Petflix Films Demo - Basic Services
+# Hazelcast Flow Films Demo - Basic Services
 
 This repo contains services required for the Hazelcast Flow films demo
 

@@ -1,4 +1,4 @@
-package com.petflix.films
+package com.hazelflix.films
 
 import com.google.common.io.Files
 import com.squareup.wire.schema.Location

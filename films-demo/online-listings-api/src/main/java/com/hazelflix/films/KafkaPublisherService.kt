@@ -1,4 +1,4 @@
-package com.petflix.films
+package com.hazelflix.films
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.kafka.core.KafkaTemplate

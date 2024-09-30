@@ -1,4 +1,4 @@
-package com.petflix.films
+package com.hazelflix.films
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable

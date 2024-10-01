@@ -1,27 +1,20 @@
 version: 2
 updates:
   - package-ecosystem: "maven"
-    directory: "/"
+    directories:
+      - "**/*"
     schedule:
       interval: "daily"
-    labels:
-      - "Source: Internal"
-      - "dependencies"
     open-pull-requests-limit: 100
 
   - package-ecosystem: "docker"
-    directory: "/"
+    directories:
+      - "**/*"
     schedule:
       interval: "daily"
-    labels:
-      - "Source: Internal"
-      - "dependencies"
 
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories:
+      - "**/*"
     schedule:
       interval: "daily"
-    labels:
-      - "Source: Internal"
-      - "dependencies"
-

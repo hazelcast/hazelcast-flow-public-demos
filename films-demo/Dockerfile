@@ -6,7 +6,7 @@ COPY pom.xml /usr/src
 
 RUN mvn -f /usr/src/pom.xml clean package
 
-FROM eclipse-temurin:17-jammy
+FROM eclipse-temurin:21-jammy
 
 RUN addgroup --system worker --gid 1000 && \
     adduser --system worker --ingroup worker --uid 1001

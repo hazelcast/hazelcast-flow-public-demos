@@ -14,7 +14,7 @@
     <properties>
         <app.main.class>com.hazelflix.films.FilmStreamingServicesApp</app.main.class>
         <app.distribution.directory>${project.build.directory}/distributions/app</app.distribution.directory>
-       <wire.version>4.1.0</wire.version>
+       <wire.version>5.1.0</wire.version>
     </properties>
 
     <dependencies>

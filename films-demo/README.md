@@ -36,8 +36,9 @@ cp .env.example .env
 4. Run the `docker-compose up` command.
 
 ```bash
-git clone https://github.com/hazelcast/hazelcast-flow-docker-compose.git
-cd  docker-compose
+git clone https://github.com/hazelcast/hazelcast-flow-public-demos.git
+cd hazelcast-flow-public-demos/films-demo
+
 docker-compose up
 ```
 

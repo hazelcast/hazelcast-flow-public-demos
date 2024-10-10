@@ -1,6 +1,6 @@
 services:
    hazelcast-flow:
-      image: "quay.io/hazelcast_cloud/hazelcast-flow-internal:next"
+      image: "docker.io/hazelcast/hazelcast-flow:5.5.0"
       environment:
          MC_LICENSE: "${MC_LICENSE}"
          JAVA_OPTS: >-
@@ -40,7 +40,7 @@ services:
                memory: 2gb
 
    management-center:
-      image: "quay.io/hazelcast_cloud/management-center-flow:latest"
+      image: "docker.io/hazelcast/management-center-flow:5.6.0"
       ports:
         - "8080:8080"
       healthcheck:

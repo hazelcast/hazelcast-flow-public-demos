@@ -1,32 +1,61 @@
 services:
-   hazelcast-flow:
-      image: "orbitalhq/orbital:0.33-next-jammy"
-      environment:
-         SERVER_PORT: 9021
-         JAVA_OPTS: >-
-            -Xms256m
-            -Xmx2048m
-         OPTIONS: >-
-            --vyne.analytics.persistRemoteCallResponses=true
-            --vyne.analytics.persistResults=true
-            --vyne.workspace.config-file=/opt/service/workspace/workspace.conf
-            --vyne.db.database=flow
-            --vyne.db.username=flow
-            --vyne.db.password=changeme
-            --vyne.db.host=pg-pagila
-      expose:
-         - 9021
+   management-center:
+      image: "quay.io/hazelcast_cloud/management-center-flow:latest"
+      pull_policy: "always"
       ports:
-         - "9021:9021"
+         - "8080:8080"
+      healthcheck:
+         test: curl --fail http://localhost:8080/health || exit 1
+         interval: 30s
+         timeout: 5s
+         retries: 3
+      environment:
+         - JAVA_OPTS=-Dhazelcast.mc.flow.address=http://localhost:9021 -Dhazelcast.mc.flow.internalAddress=http://hazelcast-flow:9021
+         - MC_LICENSE=${MC_LICENSE}
+         - MC_DEFAULT_CLUSTER=orbital
+         - MC_DEFAULT_CLUSTER_MEMBERS=hazelcast-flow:25701
+         - MC_APPLICATION_CLIENT_SECRET=changemechangemechangeme
+         - MC_INIT_CMD=./bin/mc-conf.sh security reset && ./bin/mc-conf.sh user create -n admin -r admin -p "Password1!"
+
+   hazelcast-flow:
+      image: "quay.io/hazelcast_cloud/hazelcast-flow-internal:next"
+      restart: unless-stopped
+      pull_policy: "always"
       healthcheck:
          test: curl --fail http://localhost:9021/api/actuator/health || exit 1
          interval: 30s
          timeout: 5s
          retries: 3
+      environment:
+         MC_LICENSE: "${MC_LICENSE}"
+         VYNE_SECURITY_OPENIDP_SCOPE: "openid email profile"
+         JAVA_OPTS: >-
+           -XX:MaxRAMPercentage=50
+           -XX:InitialRAMPercentage=50
+         OPTIONS: >-
+           --flow.analytics.persistRemoteCallResponses=true
+           --flow.analytics.persistResults=true
+           --flow.db.database=flow
+           --flow.db.username=flow
+           --flow.db.password=changeme
+           --flow.db.host=pg-pagila
+           --flow.workspace.config-file=/opt/service/workspace/workspace.conf
+           --flow.security.openIdp.enabled=true
+           --flow.security.openIdp.jwks-uri=http://management-center:8080/oauth2/jwks
+           --flow.security.openIdp.issuerUrl=http://localhost:8080
+           --flow.security.openIdp.clientId=flow-client
+           --flow.security.openIdp.require-https=false
+           --flow.security.open-idp.roles.format=path
+           --flow.security.open-idp.roles.path=roles
+           --flow.security.open-idp.refreshTokensDisabled=true
+           --flow.config.custom.managementCenterUrl=http://localhost:8080
+      ports:
+         - "9021:9021"
       volumes:
-         - .:/opt/service/workspace
+          - ~/.hazelcast/flow/license/:/opt/var/flow/license/
+          - .:/opt/service/workspace
       depends_on:
-         - pg-pagila
+          - pg-pagila
       deploy:
          restart_policy:
             condition: on-failure

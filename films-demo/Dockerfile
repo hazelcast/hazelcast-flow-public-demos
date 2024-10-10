@@ -1,4 +1,4 @@
-FROM maven:3.9.9-amazoncorretto-21 AS builder
+FROM maven:3-amazoncorretto-23 AS builder
 
 RUN mkdir -p /usr/src/online-listings-api
 COPY online-listings-api /usr/src/online-listings-api/

@@ -39,7 +39,7 @@ cp .env.example .env
 git clone https://github.com/hazelcast/hazelcast-flow-public-demos.git
 cd hazelcast-flow-public-demos/films-demo
 
-docker-compose up
+docker-compose up -d
 ```
 
 Some exposed endpoints:

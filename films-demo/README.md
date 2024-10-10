@@ -24,7 +24,7 @@ The following steps will run a local instance of the Hazelcast Flow using the de
 
 1. Clone this repository.
 2. Change directory into the root of the project.
-3.  Set up the Hazelcast License
+3. Set up the Hazelcast License
 ```bash
 cp .env.example .env
 ```

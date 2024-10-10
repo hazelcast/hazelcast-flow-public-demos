@@ -1,19 +1,21 @@
 services:
    hazelcast-flow:
-      image: "orbitalhq/orbital:0.33-next-jammy"
+      image: "quay.io/hazelcast_cloud/hazelcast-flow-internal:next"
       environment:
-         SERVER_PORT: 9021
+         MC_LICENSE: "${MC_LICENSE}"
          JAVA_OPTS: >-
-            -Xms256m
-            -Xmx2048m
+            -XX:MaxRAMPercentage=50
+            -XX:InitialRAMPercentage=50
          OPTIONS: >-
-            --vyne.analytics.persistRemoteCallResponses=true
-            --vyne.analytics.persistResults=true
-            --vyne.workspace.config-file=/opt/service/workspace/workspace.conf
-            --vyne.db.database=flow
-            --vyne.db.username=flow
-            --vyne.db.password=changeme
-            --vyne.db.host=pg-pagila
+            --flow.analytics.persistRemoteCallResponses=true
+            --flow.analytics.persistResults=true
+            --flow.workspace.config-file=/opt/service/workspace/workspace.conf
+            --flow.db.database=flow
+            --flow.db.username=flow
+            --flow.db.password=changeme
+            --flow.db.host=pg-pagila
+            --flow.config.custom.managementCenterUrl=http://localhost:8080
+            --flow.hazelcast.configYamlPath=/opt/hazelcast/config_ext/hazelcast.yml
       expose:
          - 9021
       ports:
@@ -25,6 +27,9 @@ services:
          retries: 3
       volumes:
          - .:/opt/service/workspace
+         - type: bind
+           source: ./hazelcast.yml
+           target: /opt/hazelcast/config_ext/hazelcast.yml
       depends_on:
          - pg-pagila
       deploy:
@@ -33,6 +38,22 @@ services:
          resources:
             limits:
                memory: 2gb
+
+   management-center:
+      image: "quay.io/hazelcast_cloud/management-center-flow:latest"
+      ports:
+        - "8080:8080"
+      healthcheck:
+        test: curl --fail http://localhost:8080/health || exit 1
+        interval: 30s
+        timeout: 5s
+        retries: 3
+      environment:
+        - JAVA_OPTS=-Dhazelcast.mc.flow.address=http://localhost:9021 -Dhazelcast.mc.flow.internalAddress=http://hazelcast-flow:9021
+        - MC_DEFAULT_CLUSTER=flow
+        - MC_DEFAULT_CLUSTER_MEMBERS=hazelcast-flow:5701
+        - MC_LICENSE=${MC_LICENSE}
+        - MC_INIT_CMD=./bin/mc-conf.sh security reset && ./bin/mc-conf.sh dev-mode configure
 
    pg-pagila:
       build:

@@ -42,3 +42,5 @@ docker compose up -d
 Some exposed endpoints:
 - http://localhost:9021 - Hazelcast Flow UI
 - http://localhost:8080 - Management Center UI
+
+For further instructions and guidelines, please refer to the [Flow Documentation](https://docs.hazelcast.com/flow/5.5/guides/apis-db-kafka).

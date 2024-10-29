@@ -1,0 +1,39 @@
+namespace com.hazelstock.demo
+
+type Sub inherits String
+type Role inherits String
+type Scope inherits String
+
+[[ UserInfo represents the User JWT claims ]]
+model UserInfo inherits flow.auth.AuthClaims {
+   sub : Sub
+   scope: Scope[]
+   roles: Role[]
+}
+
+
+//  RestrictedStockTrade policy restricts the StockTrade model
+//    based on the user's role
+//    Admin can read all fields
+//    Others can read all fields except price 
+policy RestrictedStockTrade against StockTrade (userInfo : com.hazelstock.demo.UserInfo) -> {
+   read {
+      when {
+         userInfo.roles.contains('Admin') -> StockTrade
+         else -> StockTrade as { ... except { price } }
+      }
+   }
+}
+
+// FilterStockTrade policy restricts the StockTrade model
+//    based on the user's role
+//    Admin can read all fields
+//    Others can read an obfuscated stock trade 
+policy FilterTicker against Ticker (userInfo : com.hazelstock.demo.UserInfo) -> {
+   read {
+      when {
+         userInfo.roles.contains('Admin') -> Ticker
+         else -> '****'
+      }
+   }
+}

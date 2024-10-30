@@ -1,6 +1,6 @@
 services:
    hazelcast-flow:
-      image: "docker.io/hazelcast/hazelcast-flow:5.5.0"
+      image: "docker.io/hazelcast/hazelcast-flow:5.6.0"
       environment:
          MC_LICENSE: "${MC_LICENSE}"
          JAVA_OPTS: >-

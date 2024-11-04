@@ -28,6 +28,8 @@ services:
             --flow.config.custom.managementCenterUrl=http://localhost:8080
             --flow.security.open-idp.executorRoleClientId=application-client
             --flow.security.open-idp.executorRoleClientSecret=${MC_APPLICATION_CLIENT_SECRET}
+            --flow.security.openIdp.executorRoleAuthenticationType=ClientSecretBasic
+            --flow.security.openIdp.executorRoleScopes="openid email profile flow:QueryRunner flow:PlatformManager"
       expose:
          - 9021
       ports:

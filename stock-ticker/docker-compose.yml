@@ -1,0 +1,115 @@
+services:
+   hazelcast-flow:
+      image: "docker.io/hazelcast/hazelcast-flow:5.6.0"
+      environment:
+         MC_LICENSE: "${MC_LICENSE}"
+         JAVA_OPTS: >-
+            -XX:MaxRAMPercentage=50
+            -XX:InitialRAMPercentage=50
+         FLOW_SECURITY_OPENIDP_SCOPE: "openid email profile"
+         OPTIONS: >-
+            --flow.analytics.persistRemoteCallResponses=true
+            --flow.analytics.persistResults=true
+            --flow.toggles.policies-enabled=true
+            --flow.db.database=flow
+            --flow.db.username=flow
+            --flow.db.password=43882f197-a23957b
+            --flow.db.host=postgres
+            --flow.workspace.config-file=/opt/service/workspace/workspace.conf
+            --flow.security.openIdp.enabled=true
+            --flow.security.openIdp.jwks-uri=http://management-center:8080/oauth2/jwks
+            --flow.security.openIdp.issuerUrl=http://localhost:8080
+            --flow.security.openIdp.clientId=flow-client
+            --flow.security.openIdp.require-https=false
+            --flow.security.open-idp.roles.format=path
+            --flow.security.open-idp.roles.path=roles
+            --flow.security.open-idp.refreshTokensDisabled=true
+            --flow.hazelcast.configYamlPath=/opt/hazelcast/config_ext/hazelcast.yml
+            --flow.config.custom.managementCenterUrl=http://localhost:8080
+            --flow.security.open-idp.executorRoleClientId=application-client
+            --flow.security.open-idp.executorRoleClientSecret=${MC_APPLICATION_CLIENT_SECRET}
+            --flow.security.openIdp.executorRoleAuthenticationType=ClientSecretBasic
+            --flow.security.openIdp.executorRoleScopes="openid email profile flow:QueryRunner flow:PlatformManager"
+      expose:
+         - 9021
+      ports:
+         - "9021:9021"
+      healthcheck:
+         test: curl --fail http://localhost:9021/api/actuator/health || exit 1
+         interval: 30s
+         timeout: 5s
+         retries: 3
+      volumes:
+         - .:/opt/service/workspace
+         - type: bind
+           source: ./hazelcast.yml
+           target: /opt/hazelcast/config_ext/hazelcast.yml
+      depends_on:
+         - postgres
+      deploy:
+         restart_policy:
+            condition: on-failure
+         resources:
+            limits:
+               memory: 2gb
+
+   management-center:
+      image: "docker.io/hazelcast/management-center-flow:5.6.0"
+      ports:
+        - "8080:8080"
+      healthcheck:
+        test: curl --fail http://localhost:8080/health || exit 1
+        interval: 30s
+        timeout: 5s
+        retries: 3
+      environment:
+        - JAVA_OPTS=-Dhazelcast.mc.flow.addresses=http://localhost:9021 -Dhazelcast.mc.flow.internalAddress=http://hazelcast-flow:9021
+        - MC_DEFAULT_CLUSTER=flow
+        - MC_DEFAULT_CLUSTER_MEMBERS=hazelcast-flow:5701
+        - MC_LICENSE=${MC_LICENSE}
+        - MC_APPLICATION_CLIENT_SECRET=${MC_APPLICATION_CLIENT_SECRET}
+        - MC_INIT_CMD=./bin/mc-conf.sh security reset && ./bin/mc-conf.sh user create -n admin -r admin -p "changeme!" && ./bin/mc-conf.sh user create -n user -r readwrite -p "changeme!" && ./bin/mc-conf.sh user create -n readonly -r readonly -p "changeme!" && ./bin/mc-conf.sh user create -n metricsonly -r metricsonly -p "changeme!"
+
+   postgres:
+      image: docker.io/postgres:15
+      environment:
+         POSTGRES_DB: flow
+         POSTGRES_USER: flow
+         POSTGRES_PASSWORD: 43882f197-a23957b
+      volumes:
+      - database_data:/var/lib/postgresql/data
+
+   kafka:
+      image: "docker.io/apache/kafka:3.7.0"
+      hostname: kafka
+      container_name: kafka
+      environment:
+         KAFKA_NODE_ID: 1
+         KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+         KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT_HOST://localhost:9092,PLAINTEXT://kafka:19092'
+         KAFKA_PROCESS_ROLES: 'broker,controller'
+         KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+         KAFKA_LISTENERS: 'CONTROLLER://:29093,PLAINTEXT_HOST://0.0.0.0:9092,PLAINTEXT://0.0.0.0:19092'
+         KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+         KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+         CLUSTER_ID: '4L6g3nShT-eMCtK--X86sw'
+         KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+         KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+         KAFKA_LOG_RETENTION_MS: 60000
+         KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 5000
+      ports:
+         - "19092:19092"
+
+   stockticker-generator:
+      build:
+         context: "generator/"
+         dockerfile: "stock_generator.Dockerfile"
+      environment:
+         KAFKA_BOOTSTRAP_SERVERS: "kafka:19092"
+         TOPIC: "sql_basics.trades"
+      depends_on:
+        - kafka
+
+volumes:
+   database_data:

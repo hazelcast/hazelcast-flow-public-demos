@@ -1,0 +1,31 @@
+namespace com.hazelstock.demo 
+
+[[ Represents a stock trade id ]]
+type TradeId inherits Int
+[[ Ticker symbol ]]
+type Ticker inherits String
+[[ Price of the stock trade ]]
+type Price inherits Decimal
+[[ Timestamp of the stock trade ]]
+type Timestamp inherits String
+[[ Units of the stock traded ]]
+type Amount inherits Int
+[[ Company name ]]
+type CompanyName inherits String
+
+[[ Represents a stock trade which is read from a Kafka topic ]]
+parameter model StockTrade {
+    id: TradeId
+    ticker: Ticker
+    price: Price
+    trade_ts: Timestamp
+    amt: Amount
+}
+
+[[ A Service to read stock trades from a Kafka topic ]]
+@flow.kafka.KafkaService(connectionName = "kafka-stockticker")
+service TransactionStreamService {
+   [[ Stream of stock trades ]]
+   @flow.kafka.KafkaOperation(topic = "sql_basics.trades" , offset = "latest")
+   stream trades : Stream<StockTrade>
+}

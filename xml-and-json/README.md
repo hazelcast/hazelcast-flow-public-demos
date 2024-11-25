@@ -1,6 +1,6 @@
 # Hazelcast Flow Films XML Demo 
 
-This repo contains services required for the Hazelcast Flow films XML demo
+This repo contains services required for the Hazelcast Flow films XML demo.
 
 This features a Rest API providing information about films, actors in XML format
 

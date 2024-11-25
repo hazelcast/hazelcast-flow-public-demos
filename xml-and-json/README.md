@@ -2,7 +2,7 @@
 
 This repo contains services required for the Hazelcast Flow films XML demo.
 
-This features a Rest API providing information about films, actors in XML format
+This features a Rest API providing information about films and actors in XML format.
 
 This demo is "naked" - the services don't contain any Flow or Taxi code or concepts.
 The taxi files used for the demo are described in the [tutorial](https://docs.hazelcast.com/flow/5.5/guides/work-with-xml)

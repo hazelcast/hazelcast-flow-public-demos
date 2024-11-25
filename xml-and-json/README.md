@@ -18,8 +18,8 @@ To use these files, you must first have the following installed:
 
 The following steps will run a local instance of the Hazelcast Flow using the default configuration file (`docker-compose.yml`):
 
-1. Clone this repository.
-2. Change directory into the root of the project.
+1. Clone this repository
+2. Change directory into the root of the project
 3. Set up the Hazelcast Flow License
 ```bash
 cp .env.example .env

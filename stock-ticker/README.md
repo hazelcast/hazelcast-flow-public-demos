@@ -59,12 +59,8 @@ cp .env.example .env
 4. Run the `docker-compose up` command.
 
 ```bash
-git clone https://github.com/hazelcast/hazelcast-flow-public-demos.git
-cd hazelcast-flow-public-demos/stock-ticker
-
-docker-compose up -d
+docker compose up -d
 ```
-
 
 Some exposed endpoints:
 - http://localhost:9021 - Hazelcast Flow UI
